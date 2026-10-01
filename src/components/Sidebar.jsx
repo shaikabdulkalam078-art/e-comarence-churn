@@ -21,7 +21,7 @@ const icons = {
   settings: Settings,
 };
 
-export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
+export default function Sidebar({ currentPath, onNavigate, isOpen, onClose }) {
   return (
     <>
       <button
@@ -29,6 +29,7 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
         aria-label="Close navigation"
         onClick={onClose}
       />
+
       <aside className={`sidebar${isOpen ? ' is-open' : ''}`}>
         <div className="sidebar-brand">
           <div className="brand-mark"><Gauge size={21} strokeWidth={2.4} /></div>
@@ -45,13 +46,13 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onClose }) {
         <nav className="primary-nav" aria-label="Main navigation">
           {pages.map((page) => {
             const Icon = icons[page.icon];
-            const active = currentPage === page.label;
+            const active = currentPath === page.to;
             return (
               <button
                 key={page.label}
                 className={`nav-item${active ? ' active' : ''}`}
                 aria-current={active ? 'page' : undefined}
-                onClick={() => onNavigate(page.label)}
+                onClick={() => onNavigate(page.to)}
               >
                 <Icon size={18} strokeWidth={1.8} />
                 <span>{page.label}</span>
