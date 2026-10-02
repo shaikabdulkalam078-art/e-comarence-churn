@@ -3,6 +3,8 @@ import { customers } from '../data/customers.js';
 export const CUSTOMER_ID_STORAGE_KEY = 'churniqCustomerId';
 export const NEXT_CUSTOMER_NUMBER_STORAGE_KEY = 'churniqNextCustomerNumber';
 export const GENERATED_CUSTOMER_ID_STORAGE_KEY = 'churniqGeneratedCustomerId';
+export const REGISTERED_CUSTOMERS_STORAGE_KEY = 'churniqRegisteredCustomers';
+export const REGISTERED_CUSTOMER_META_STORAGE_KEY = 'churniqRegisteredCustomerMeta';
 
 const legacyCustomerIdKey = 'churniq-customer-id';
 const legacyNextCustomerNumberKey = 'churniq-next-customer-number';
@@ -66,6 +68,107 @@ export function setCurrentCustomerId(customerId) {
   return customer;
 }
 
+export function getRegisteredCustomerIds() {
+  try {
+    const storedValue = JSON.parse(localStorage.getItem(REGISTERED_CUSTOMERS_STORAGE_KEY) || '[]');
+    if (!Array.isArray(storedValue)) return [];
+
+    const uniqueIds = [...new Set(storedValue
+      .map((id) => normalizeCustomerId(id))
+      .filter((id) => id && isValidCustomerId(id)))];
+
+    if (uniqueIds.length !== storedValue.length) {
+      localStorage.setItem(REGISTERED_CUSTOMERS_STORAGE_KEY, JSON.stringify(uniqueIds));
+    }
+
+    return uniqueIds;
+  } catch {
+    return [];
+  }
+}
+
+export function getCustomerRegistrationMeta(customerId) {
+  const normalizedId = normalizeCustomerId(customerId);
+  if (!normalizedId) return null;
+
+  try {
+    const metadata = JSON.parse(localStorage.getItem(REGISTERED_CUSTOMER_META_STORAGE_KEY) || '{}');
+    return metadata[normalizedId] || null;
+  } catch {
+    return null;
+  }
+}
+
+export function getRegisteredCustomers() {
+  return getRegisteredCustomerIds()
+    .map((customerId) => getCustomerById(customerId))
+    .filter(Boolean);
+}
+
+export function getRegisteredCustomerCount() {
+  return getRegisteredCustomerIds().length;
+}
+
+export function isCustomerRegistered(customerId) {
+  return getRegisteredCustomerIds().includes(normalizeCustomerId(customerId));
+}
+
+export function registerCustomer(customerId) {
+  const normalizedId = normalizeCustomerId(customerId);
+  if (!normalizedId || isCustomerRegistered(normalizedId)) {
+    return false;
+  }
+
+  const registeredIds = getRegisteredCustomerIds();
+  const nextList = [...registeredIds, normalizedId];
+  localStorage.setItem(REGISTERED_CUSTOMERS_STORAGE_KEY, JSON.stringify(nextList));
+
+  try {
+    const metadata = JSON.parse(localStorage.getItem(REGISTERED_CUSTOMER_META_STORAGE_KEY) || '{}');
+    metadata[normalizedId] = {
+      registeredAt: new Date().toISOString(),
+    };
+    localStorage.setItem(REGISTERED_CUSTOMER_META_STORAGE_KEY, JSON.stringify(metadata));
+  } catch {
+    localStorage.setItem(REGISTERED_CUSTOMER_META_STORAGE_KEY, JSON.stringify({
+      [normalizedId]: { registeredAt: new Date().toISOString() },
+    }));
+  }
+
+  return true;
+}
+
+export function getRecentRegisteredCustomers(limit = 4) {
+  const ids = [...getRegisteredCustomerIds()].reverse();
+  return ids.slice(0, limit).map((customerId) => {
+    const customer = getCustomerById(customerId);
+    const meta = getCustomerRegistrationMeta(customerId);
+    return customer ? { ...customer, registeredAt: meta?.registeredAt || new Date().toISOString() } : null;
+  }).filter(Boolean);
+}
+
+export function getNewCustomers(daysWindow = 7) {
+  const cutoff = Date.now() - daysWindow * 24 * 60 * 60 * 1000;
+  return getRegisteredCustomers().filter((customer) => {
+    const meta = getCustomerRegistrationMeta(customer.customerId);
+    if (!meta?.registeredAt) return false;
+    return new Date(meta.registeredAt).getTime() >= cutoff;
+  });
+}
+
+export function getActiveCustomers() {
+  return getRegisteredCustomers().filter((customer) => customer.customerActivity === 'Active');
+}
+
+export function getAtRiskCustomers() {
+  return getRegisteredCustomers().filter((customer) => customer.churnRisk === 'Medium' || customer.churnRisk === 'High');
+}
+
+export function clearRegisteredCustomers() {
+  localStorage.removeItem(REGISTERED_CUSTOMERS_STORAGE_KEY);
+  localStorage.removeItem(REGISTERED_CUSTOMER_META_STORAGE_KEY);
+}
+
 export function getGeneratedCustomerId() {
   const generatedId = localStorage.getItem(GENERATED_CUSTOMER_ID_STORAGE_KEY);
   return isValidCustomerId(generatedId) ? normalizeCustomerId(generatedId) : '';
@@ -85,6 +188,7 @@ export function generateNextCustomerId() {
 
     localStorage.setItem(NEXT_CUSTOMER_NUMBER_STORAGE_KEY, String(nextNumber));
     localStorage.setItem(GENERATED_CUSTOMER_ID_STORAGE_KEY, customerId);
+    registerCustomer(customerId);
     setCurrentCustomerId(customerId);
     return customerId;
   }

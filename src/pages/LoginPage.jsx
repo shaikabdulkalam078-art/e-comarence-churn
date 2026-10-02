@@ -100,6 +100,7 @@ export default function LoginPage() {
         </a>
         <div className="welcome-header-actions">
           <span className="welcome-platform">Customer Intelligence Platform</span>
+          <Link className="welcome-directory-link" to="/admin">Admin Dashboard</Link>
           <Link className="welcome-directory-link" to="/directory"><UsersRound size={15} /> Customer Directory <strong>{customers.length.toLocaleString('en-IN')}</strong></Link>
         </div>
       </header>

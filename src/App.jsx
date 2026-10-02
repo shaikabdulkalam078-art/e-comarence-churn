@@ -3,6 +3,13 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation, useNavigat
 import Header from './components/Header.jsx';
 import Sidebar from './components/Sidebar.jsx';
 import LoginPage from './pages/LoginPage.jsx';
+import Home from './pages/Home.jsx';
+import IndustryLandingPage from './pages/industry/IndustryLandingPage.jsx';
+import IndustryDashboardPage from './pages/industry/IndustryDashboardPage.jsx';
+import IndustryProfilePage from './pages/industry/IndustryProfilePage.jsx';
+import IndustryActivityPage from './pages/industry/IndustryActivityPage.jsx';
+import IndustryInsightsPage from './pages/industry/IndustryInsightsPage.jsx';
+import IndustryOffersPage from './pages/industry/IndustryOffersPage.jsx';
 import CustomerAreaLayout from './pages/customer/CustomerAreaLayout.jsx';
 import CustomerActivity from './pages/customer/CustomerActivity.jsx';
 import CustomerDashboard from './pages/customer/CustomerDashboard.jsx';
@@ -18,6 +25,13 @@ import AtRiskPage from './pages/AtRiskPage.jsx';
 import ModelPerformancePage from './pages/ModelPerformancePage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 import CustomerDetailPage from './pages/CustomerDetailPage.jsx';
+import AdminLayout from './pages/admin/AdminLayout.jsx';
+import AdminDashboard from './pages/admin/AdminDashboard.jsx';
+import AdminCustomers from './pages/admin/AdminCustomers.jsx';
+import AdminCustomerDetails from './pages/admin/AdminCustomerDetails.jsx';
+import AdminAnalytics from './pages/admin/AdminAnalytics.jsx';
+import AdminAtRisk from './pages/admin/AdminAtRisk.jsx';
+import AdminSettings from './pages/admin/AdminSettings.jsx';
 import { getCurrentCustomer } from './utils/customerUtils.js';
 
 const titleMap = {
@@ -90,8 +104,46 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<LoginPage />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/directory" element={<CustomerDirectoryPage />} />
+
+        <Route path="/ecommerce" element={<IndustryLandingPage industry="ecommerce" />} />
+        <Route path="/ecommerce/dashboard" element={<IndustryDashboardPage industry="ecommerce" />} />
+        <Route path="/ecommerce/profile" element={<IndustryProfilePage industry="ecommerce" />} />
+        <Route path="/ecommerce/activity" element={<IndustryActivityPage industry="ecommerce" />} />
+        <Route path="/ecommerce/insights" element={<IndustryInsightsPage industry="ecommerce" />} />
+        <Route path="/ecommerce/offers" element={<IndustryOffersPage industry="ecommerce" />} />
+
+        <Route path="/saas" element={<IndustryLandingPage industry="saas" />} />
+        <Route path="/saas/dashboard" element={<IndustryDashboardPage industry="saas" />} />
+        <Route path="/saas/profile" element={<IndustryProfilePage industry="saas" />} />
+        <Route path="/saas/activity" element={<IndustryActivityPage industry="saas" />} />
+        <Route path="/saas/insights" element={<IndustryInsightsPage industry="saas" />} />
+        <Route path="/saas/offers" element={<IndustryOffersPage industry="saas" />} />
+
+        <Route path="/banking" element={<IndustryLandingPage industry="banking" />} />
+        <Route path="/banking/dashboard" element={<IndustryDashboardPage industry="banking" />} />
+        <Route path="/banking/profile" element={<IndustryProfilePage industry="banking" />} />
+        <Route path="/banking/activity" element={<IndustryActivityPage industry="banking" />} />
+        <Route path="/banking/insights" element={<IndustryInsightsPage industry="banking" />} />
+        <Route path="/banking/offers" element={<IndustryOffersPage industry="banking" />} />
+
+        <Route path="/telecom" element={<IndustryLandingPage industry="telecom" />} />
+        <Route path="/telecom/dashboard" element={<IndustryDashboardPage industry="telecom" />} />
+        <Route path="/telecom/profile" element={<IndustryProfilePage industry="telecom" />} />
+        <Route path="/telecom/activity" element={<IndustryActivityPage industry="telecom" />} />
+        <Route path="/telecom/insights" element={<IndustryInsightsPage industry="telecom" />} />
+        <Route path="/telecom/offers" element={<IndustryOffersPage industry="telecom" />} />
+
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="customers" element={<AdminCustomers />} />
+          <Route path="customers/:customerId" element={<AdminCustomerDetails />} />
+          <Route path="analytics" element={<AdminAnalytics />} />
+          <Route path="at-risk" element={<AdminAtRisk />} />
+          <Route path="settings" element={<AdminSettings />} />
+        </Route>
         <Route path="/customer" element={<CustomerRouteGuard />}>
           <Route element={<CustomerAreaLayout />}>
             <Route index element={<CustomerDashboard />} />
