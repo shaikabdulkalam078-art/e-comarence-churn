@@ -47,7 +47,7 @@ export default function Home() {
           <span className="landing-kicker">CUSTOMER INTELLIGENCE · MARKET</span>
           <h1>
             Know Your Customers.<br />
-            Grow Your Market.
+            <em>Grow Your Market.</em>
           </h1>
           <p>
             Understand customer behavior, discover buying patterns, identify customers at risk of leaving,
