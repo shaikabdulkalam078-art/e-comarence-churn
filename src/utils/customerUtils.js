@@ -1,10 +1,10 @@
-import { customers } from '../data/customers.js';
+import { getMarketCustomerById, marketCustomers } from '../data/marketCustomers.js';
 
-export const CUSTOMER_ID_STORAGE_KEY = 'churniqCustomerId';
-export const NEXT_CUSTOMER_NUMBER_STORAGE_KEY = 'churniqNextCustomerNumber';
-export const GENERATED_CUSTOMER_ID_STORAGE_KEY = 'churniqGeneratedCustomerId';
-export const REGISTERED_CUSTOMERS_STORAGE_KEY = 'churniqRegisteredCustomers';
-export const REGISTERED_CUSTOMER_META_STORAGE_KEY = 'churniqRegisteredCustomerMeta';
+export const CUSTOMER_ID_STORAGE_KEY = 'churniqMarketCustomerId';
+export const NEXT_CUSTOMER_NUMBER_STORAGE_KEY = 'churniqNextMarketCustomerNumber';
+export const GENERATED_CUSTOMER_ID_STORAGE_KEY = 'churniqGeneratedMarketCustomerId';
+export const REGISTERED_CUSTOMERS_STORAGE_KEY = 'churniqMarketRegisteredCustomers';
+export const REGISTERED_CUSTOMER_META_STORAGE_KEY = 'churniqMarketRegisteredCustomerMeta';
 
 const legacyCustomerIdKey = 'churniq-customer-id';
 const legacyNextCustomerNumberKey = 'churniq-next-customer-number';
@@ -17,13 +17,13 @@ export function normalizeCustomerId(customerId) {
 
 export function getCustomerById(customerId) {
   const normalizedId = normalizeCustomerId(customerId);
-  const match = /^CQ-(\d{6})$/.exec(normalizedId);
+  const match = /^MK-(\d{6})$/.exec(normalizedId);
   if (!match) return null;
 
   const customerNumber = Number(match[1]);
   if (customerNumber < firstCustomerNumber || customerNumber > lastCustomerNumber) return null;
 
-  const customer = customers[customerNumber - firstCustomerNumber];
+  const customer = marketCustomers[customerNumber - firstCustomerNumber];
   return customer?.customerId === normalizedId ? customer : null;
 }
 
@@ -70,14 +70,14 @@ export function setCurrentCustomerId(customerId) {
 
 export function getRegisteredCustomerIds() {
   try {
-    const storedValue = JSON.parse(localStorage.getItem(REGISTERED_CUSTOMERS_STORAGE_KEY) || '[]');
-    if (!Array.isArray(storedValue)) return [];
+    const raw = JSON.parse(localStorage.getItem(REGISTERED_CUSTOMERS_STORAGE_KEY) || '[]');
+    if (!Array.isArray(raw)) return [];
 
-    const uniqueIds = [...new Set(storedValue
+    const uniqueIds = [...new Set(raw
       .map((id) => normalizeCustomerId(id))
       .filter((id) => id && isValidCustomerId(id)))];
 
-    if (uniqueIds.length !== storedValue.length) {
+    if (uniqueIds.length !== raw.length) {
       localStorage.setItem(REGISTERED_CUSTOMERS_STORAGE_KEY, JSON.stringify(uniqueIds));
     }
 
@@ -125,9 +125,7 @@ export function registerCustomer(customerId) {
 
   try {
     const metadata = JSON.parse(localStorage.getItem(REGISTERED_CUSTOMER_META_STORAGE_KEY) || '{}');
-    metadata[normalizedId] = {
-      registeredAt: new Date().toISOString(),
-    };
+    metadata[normalizedId] = { registeredAt: new Date().toISOString() };
     localStorage.setItem(REGISTERED_CUSTOMER_META_STORAGE_KEY, JSON.stringify(metadata));
   } catch {
     localStorage.setItem(REGISTERED_CUSTOMER_META_STORAGE_KEY, JSON.stringify({
@@ -175,13 +173,12 @@ export function getGeneratedCustomerId() {
 }
 
 export function generateNextCustomerId() {
-  const storedNext = localStorage.getItem(NEXT_CUSTOMER_NUMBER_STORAGE_KEY)
-    || localStorage.getItem(legacyNextCustomerNumberKey);
+  const storedNext = localStorage.getItem(NEXT_CUSTOMER_NUMBER_STORAGE_KEY) || localStorage.getItem(legacyNextCustomerNumberKey);
   let nextNumber = Number(storedNext);
   if (!Number.isInteger(nextNumber) || nextNumber < firstCustomerNumber) nextNumber = firstCustomerNumber;
 
   while (nextNumber <= lastCustomerNumber) {
-    const customerId = `CQ-${nextNumber}`;
+    const customerId = `MK-${nextNumber}`;
     nextNumber += 1;
 
     if (!isValidCustomerId(customerId)) continue;
@@ -201,9 +198,9 @@ export function saveCustomerProfile(customerId, changes) {
   const customer = getCustomerById(customerId);
   if (!customer) return null;
 
-  const allowedFields = ['name', 'email', 'phone', 'location'];
+  const allowedFields = ['name', 'email', 'phone', 'location', 'preferredCategory'];
   const updates = Object.fromEntries(allowedFields
-    .filter((field) => typeof changes[field] === 'string' && changes[field].trim())
+    .filter((field) => typeof changes?.[field] === 'string' && changes[field].trim())
     .map((field) => [field, changes[field].trim()]));
   const profileKey = `churniqCustomerProfile:${customer.customerId}`;
   let existingUpdates = {};
@@ -246,3 +243,5 @@ export function formatCustomerDate(value) {
 
   return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 }
+
+export { getMarketCustomerById };

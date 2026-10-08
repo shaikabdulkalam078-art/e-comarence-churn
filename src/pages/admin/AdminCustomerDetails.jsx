@@ -17,7 +17,7 @@ export default function AdminCustomerDetails() {
       <div className="admin-page">
         <div className="admin-panel admin-empty-state-panel">
           <h2>Customer not found</h2>
-          <p>The requested customer record does not exist in the current demo dataset.</p>
+          <p>The requested customer record does not exist in the current market dataset.</p>
           <Link to="/admin/customers" className="admin-primary-button">Back to customers</Link>
         </div>
       </div>

@@ -5,11 +5,11 @@ export default function AdminSettings() {
   const [status, setStatus] = useState('');
 
   const handleReset = () => {
-    const confirmed = window.confirm('Are you sure you want to reset demo customer registrations?');
+    const confirmed = window.confirm('Are you sure you want to reset market customer registrations?');
     if (!confirmed) return;
 
     clearRegisteredCustomers();
-    setStatus('Demo customer registrations have been reset successfully.');
+    setStatus('Market customer registrations have been reset successfully.');
   };
 
   return (
@@ -22,10 +22,10 @@ export default function AdminSettings() {
       </div>
 
       <div className="admin-panel admin-settings-panel">
-        <h3>Demo Data Controls</h3>
-        <p>Reset the registered customer list without altering the original 1000 synthetic customer dataset.</p>
+        <h3>Market Data Controls</h3>
+        <p>Reset the registered customer list without altering the original 1000 synthetic market customer dataset.</p>
         <button type="button" className="admin-danger-button" onClick={handleReset}>
-          Reset Demo Data
+          Reset Market Data
         </button>
         {status && <p className="admin-status-message">{status}</p>}
       </div>

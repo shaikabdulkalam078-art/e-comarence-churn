@@ -8,20 +8,23 @@ import {
 } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
 
-const navigation = [
-  { label: 'Home', to: '/customer', icon: House, end: true },
-  { label: 'My Profile', to: '/customer/profile', icon: UserRound },
-  { label: 'My Activity', to: '/customer/activity', icon: Activity },
-  { label: 'My Insights', to: '/customer/insights', icon: Lightbulb },
-  { label: 'Recommended Offers', to: '/customer/offers', icon: BadgePercent },
-];
+export default function CustomerSidebar({ isOpen, onClose, basePath = '/customer' }) {
+  const homePath = basePath === '/market' ? `${basePath}/dashboard` : basePath;
+  const navigation = [
+    { label: 'Home', to: homePath, icon: House, end: true },
+    { label: 'My Profile', to: `${basePath}/profile`, icon: UserRound },
+    { label: 'My Activity', to: `${basePath}/activity`, icon: Activity },
+    { label: 'My Insights', to: `${basePath}/insights`, icon: Lightbulb },
+    { label: 'Recommended Offers', to: `${basePath}/offers`, icon: BadgePercent },
+  ];
 
-export default function CustomerSidebar({ isOpen, onClose }) {
+  const portalLabel = basePath.startsWith('/market') ? 'Market customer portal' : 'Customer portal';
+
   return (
     <>
       <aside className={`customer-sidebar${isOpen ? ' is-open' : ''}`} aria-label="Customer navigation">
         <div className="customer-sidebar-heading">
-          <Link className="customer-sidebar-brand" to="/customer" onClick={onClose}>
+          <Link className="customer-sidebar-brand" to={basePath} onClick={onClose}>
             <span className="customer-sidebar-mark"><span className="brand-mark"><House size={18} /></span></span>
             <span><strong>ChurnIQ</strong><small>Customer Intelligence</small></span>
           </Link>
@@ -47,7 +50,7 @@ export default function CustomerSidebar({ isOpen, onClose }) {
         </nav>
 
         <div className="customer-sidebar-footer">
-          <span className="customer-demo-dot" /> Demo customer portal
+          <span className="customer-demo-dot" /> {portalLabel}
         </div>
       </aside>
       {isOpen && <button className="customer-sidebar-backdrop" type="button" onClick={onClose} aria-label="Close navigation" />}

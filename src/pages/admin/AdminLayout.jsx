@@ -2,17 +2,14 @@ import { Gauge, LogOut } from 'lucide-react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import AdminSidebar from '../../components/AdminSidebar.jsx';
 import { clearCurrentCustomer, getCurrentCustomer } from '../../utils/customerUtils.js';
-import { getIndustryMeta, getSelectedIndustry } from '../../utils/industryUtils.js';
 
 export default function AdminLayout() {
   const navigate = useNavigate();
   const currentCustomer = getCurrentCustomer();
-  const selectedIndustry = getSelectedIndustry();
-  const industryMeta = getIndustryMeta(selectedIndustry);
 
   const handleLogout = () => {
     clearCurrentCustomer();
-    navigate('/');
+    navigate('/market', { replace: true });
   };
 
   return (
@@ -25,7 +22,7 @@ export default function AdminLayout() {
             <div className="admin-topbar-badge"><Gauge size={15} /></div>
             <div>
               <p className="admin-topbar-eyebrow">ChurnIQ</p>
-              <h1>{industryMeta.label} Customer Intelligence</h1>
+              <h1>Market Customer Intelligence</h1>
             </div>
           </div>
 
